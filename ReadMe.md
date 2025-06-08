@@ -1,4 +1,6 @@
-# RegExplore - Advanced Interactive Regex Playground
+# RegExplore
+
+> Regex ain’t scary anymore. Welcome to RegExplore.
 
 RegExplore is a powerful, interactive web application designed to help developers create, test, understand, and visualize regular expressions in real-time. Built with pure JavaScript, HTML, and CSS, this client-side application requires no backend and offers a comprehensive set of tools for working with regex patterns.
 
