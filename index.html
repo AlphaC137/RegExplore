@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RegExplore - Interactive Regex Playground</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/github.min.css">
+    <meta name="description" content="A clean, interactive web application to create, test, and understand regular expressions in real-time.">
+</head>
+<body class="light-mode">
+    <header>
+        <div class="container header-content">
+            <h1><span class="highlight">RegEx</span>plore</h1>
+            <div class="theme-toggle">
+                <button id="theme-toggle-btn" aria-label="Toggle dark/light mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container">
+        <!-- Regex Coach Assistant -->
+        <div id="regex-coach-container" class="regex-coach-container">
+            <div class="regex-coach-content">
+                <i class="fas fa-lightbulb coach-icon"></i>
+                <div id="regex-coach-message">
+                    Enter a regular expression to get started!
+                </div>
+            </div>
+            <button id="toggle-coach-btn" class="toggle-coach-btn" title="Toggle regex coach">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <section class="regex-input-section">
+            <div class="input-container">
+                <div class="input-header">
+                    <h2>Regular Expression</h2>
+                    <div class="controls">
+                        <label for="flags">Flags:</label>
+                        <div class="flag-options">
+                            <label><input type="checkbox" id="flag-g" value="g"> g (global)</label>
+                            <label><input type="checkbox" id="flag-i" value="i"> i (case insensitive)</label>
+                            <label><input type="checkbox" id="flag-m" value="m"> m (multiline)</label>
+                            <label><input type="checkbox" id="flag-s" value="s"> s (dotAll)</label>
+                            <label><input type="checkbox" id="flag-u" value="u"> u (unicode)</label>
+                            <label><input type="checkbox" id="flag-y" value="y"> y (sticky)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="regex-input-wrapper">
+                    <span class="regex-delimiter">/</span>
+                    <input type="text" id="regex-input" placeholder="Enter regex pattern here...">
+                    <span class="regex-delimiter">/</span>
+                    <span id="flags-display"></span>
+                </div>
+                <div class="action-buttons">
+                    <button id="copy-regex-btn" class="btn"><i class="fas fa-copy"></i> Copy Regex</button>
+                    <button id="save-regex-btn" class="btn"><i class="fas fa-save"></i> Save Pattern</button>
+                    <button id="export-regex-btn" class="btn"><i class="fas fa-file-export"></i> Export</button>
+                    <button id="share-regex-btn" class="btn"><i class="fas fa-share-alt"></i> Share</button>
+                    <button id="clear-regex-btn" class="btn btn-secondary"><i class="fas fa-trash"></i> Clear</button>
+                </div>
+            </div>
+        </section>
+        
+        <section class="test-section">
+            <div class="input-container">
+                <div class="test-header">
+                    <h2>Test String</h2>
+                    <button id="toggle-test-suite-btn" class="btn btn-secondary">
+                        <i class="fas fa-vials"></i> Test Suite Mode
+                    </button>
+                </div>
+                
+                <div id="standard-test-mode">
+                    <textarea id="test-input" placeholder="Enter text to test your regex against..."></textarea>
+                    <div class="match-info">
+                        <span id="match-count">0 matches found</span>
+                    </div>
+                </div>
+                
+                <div id="test-suite-mode" class="hidden">
+                    <div class="test-suite-controls">
+                        <button id="add-test-case-btn" class="btn btn-sm"><i class="fas fa-plus"></i> Add Test Case</button>
+                        <button id="run-test-suite-btn" class="btn btn-sm"><i class="fas fa-play"></i> Run Test Suite</button>
+                        <button id="import-test-cases-btn" class="btn btn-sm"><i class="fas fa-file-import"></i> Import Tests</button>
+                        <input type="file" id="import-test-file" accept=".json,.txt,.csv" class="hidden">
+                    </div>
+                    
+                    <div class="test-cases-container">
+                        <table id="test-cases-table">
+                            <thead>
+                                <tr>
+                                    <th>Test String</th>
+                                    <th>Expected Match</th>
+                                    <th>Result</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="test-cases-body">
+                                <!-- Test cases will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="test-summary" class="test-summary">
+                        No tests have been run yet.
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="results-section">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="matches">Matches</button>
+                <button class="tab-btn" data-tab="explanation">Explanation</button>
+                <button class="tab-btn" data-tab="visualizer">Visualizer</button>
+                <button class="tab-btn" data-tab="library">Pattern Library</button>
+                <button class="tab-btn" data-tab="community">Community Patterns</button>
+            </div>
+            
+            <div class="tab-content">
+                <div id="matches-tab" class="tab-pane active">
+                    <div id="match-results">
+                        <p class="empty-state">Enter a regex pattern and test text to see matches.</p>
+                    </div>
+                </div>
+                
+                <div id="explanation-tab" class="tab-pane">
+                    <div class="explanation-toggle-container">
+                        <button id="toggle-explanation-mode" class="btn btn-sm">
+                            <i class="fas fa-exchange-alt"></i> Toggle Technical/Plain English
+                        </button>
+                    </div>
+                    <div id="regex-explanation">
+                        <p class="empty-state">Enter a regex pattern to see its explanation.</p>
+                    </div>
+                    <div id="regex-plain-explanation" class="hidden">
+                        <p class="empty-state">Enter a regex pattern to see its plain English explanation.</p>
+                    </div>
+                </div>
+                
+                <div id="visualizer-tab" class="tab-pane">
+                    <div class="visualizer-container">
+                        <div id="visualizer-loading" class="loading-indicator">
+                            <i class="fas fa-spinner fa-spin"></i> Generating visualization...
+                        </div>
+                        <div id="visualizer-graph"></div>
+                        <div class="visualizer-legend">
+                            <div class="legend-item"><span class="legend-color literal"></span>Literal Text</div>
+                            <div class="legend-item"><span class="legend-color character-class"></span>Character Class</div>
+                            <div class="legend-item"><span class="legend-color group"></span>Capturing Group</div>
+                            <div class="legend-item"><span class="legend-color quantifier"></span>Quantifier</div>
+                            <div class="legend-item"><span class="legend-color anchor"></span>Anchor</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="library-tab" class="tab-pane">
+                    <div class="pattern-library">
+                        <h3>Common Patterns</h3>
+                        <div class="pattern-grid" id="pattern-grid">
+                            <!-- Patterns will be inserted by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="community-tab" class="tab-pane">
+                    <div class="community-patterns-header">
+                        <h3>Community Patterns</h3>
+                        <div class="community-controls">
+                            <div class="search-container">
+                                <input type="text" id="community-search" placeholder="Search community patterns...">
+                                <i class="fas fa-search search-icon"></i>
+                            </div>
+                            <button id="publish-pattern-btn" class="btn btn-sm">
+                                <i class="fas fa-cloud-upload-alt"></i> Publish My Pattern
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="community-patterns-tags">
+                        <span class="tag active" data-tag="all">All</span>
+                        <span class="tag" data-tag="validation">Validation</span>
+                        <span class="tag" data-tag="extraction">Extraction</span>
+                        <span class="tag" data-tag="formatting">Formatting</span>
+                        <span class="tag" data-tag="data-parsing">Data Parsing</span>
+                        <span class="tag" data-tag="web">Web</span>
+                        <span class="tag" data-tag="code">Code</span>
+                    </div>
+                    
+                    <div id="community-patterns-grid" class="community-patterns-grid">
+                        <!-- Community patterns will be loaded here -->
+                        <p class="loading-message"><i class="fas fa-spinner fa-spin"></i> Loading community patterns...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="saved-patterns-section" id="saved-patterns-container">
+            <h2>Saved Patterns</h2>
+            <div id="saved-patterns" class="saved-patterns-list">
+                <p class="empty-state">No saved patterns yet. Save a pattern to see it here.</p>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Export Modal -->
+    <div id="export-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Export Regex</h3>
+                <button id="close-export-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <div class="export-option-group">
+                        <label for="export-language">Programming Language:</label>
+                        <select id="export-language">
+                            <option value="javascript">JavaScript</option>
+                            <option value="python">Python</option>
+                            <option value="php">PHP</option>
+                            <option value="java">Java</option>
+                            <option value="csharp">C#</option>
+                            <option value="ruby">Ruby</option>
+                        </select>
+                    </div>
+                    
+                    <div class="export-option-group">
+                        <label for="export-format">Export Format:</label>
+                        <select id="export-format">
+                            <option value="code">Code Snippet</option>
+                            <option value="markdown">Markdown</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="export-preview">
+                    <label>Preview:</label>
+                    <pre><code id="export-preview-code" class="hljs"></code></pre>
+                </div>
+                
+                <div class="export-actions">
+                    <button id="copy-export-btn" class="btn">
+                        <i class="fas fa-copy"></i> Copy to Clipboard
+                    </button>
+                    <button id="download-export-btn" class="btn">
+                        <i class="fas fa-download"></i> Download File
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Publish Pattern Modal -->
+    <div id="publish-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Publish Pattern to Community</h3>
+                <button id="close-publish-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="publish-name">Pattern Name:</label>
+                    <input type="text" id="publish-name" placeholder="Give your pattern a descriptive name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="publish-description">Description:</label>
+                    <textarea id="publish-description" placeholder="Explain what your pattern does and how to use it"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="publish-tags">Tags (comma separated):</label>
+                    <input type="text" id="publish-tags" placeholder="validation, email, web...">
+                </div>
+                
+                <div class="form-group">
+                    <label>Example:</label>
+                    <div class="publish-example">
+                        <div class="pattern-preview">/your-pattern/flags</div>
+                    </div>
+                </div>
+                
+                <div class="publish-actions">
+                    <button id="submit-pattern-btn" class="btn">
+                        <i class="fas fa-cloud-upload-alt"></i> Publish Pattern
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share Regex</h3>
+                <button id="close-share-modal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="share-url">Shareable Link:</label>
+                    <div class="share-url-container">
+                        <input type="text" id="share-url" readonly>
+                        <button id="copy-url-btn" class="btn btn-sm">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="share-options">
+                    <div class="form-group">
+                        <label>Share options:</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="share-include-test" checked>
+                                Include test string
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="share-qr-code">
+                    <div id="share-qr-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>RegExplore - Interactive Regular Expression Playground</p>
+            <p><span class="highlight">v2.0</span> | Last Updated: 2025-06-08</p>
+            <p>&copy; 2025 | Built with <i class="fas fa-heart"></i> for developers</p>
+        </div>
+    </footer>
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/vis-network.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/php.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/csharp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/ruby.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    
+    <!-- App scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
