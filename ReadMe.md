@@ -2,9 +2,12 @@
 
 > Regex ain’t scary anymore. Welcome to RegExplore.
 
+![App Diagram Flow](Flow.png)
+
+
 RegExplore is a powerful, interactive web application designed to help developers create, test, understand, and visualize regular expressions in real-time. Built with pure JavaScript, HTML, and CSS, this client-side application requires no backend and offers a comprehensive set of tools for working with regex patterns.
 
-## 🚀 Key Features
+##  Key Features
 
 ### Core Functionality
 - **Live Regex Testing**: Test patterns against any input text with real-time highlighting
@@ -22,7 +25,7 @@ RegExplore is a powerful, interactive web application designed to help developer
 - **Shareable URLs**: Generate links to share regex patterns with others
 - **Dark/Light Mode**: Choose the interface style that works for you
 
-## 📋 Use Cases
+##  Use Cases
 
 - **Learning Tool**: Perfect for beginners to understand regex concepts visually
 - **Development Aid**: Quickly build and test patterns for your projects
@@ -30,7 +33,7 @@ RegExplore is a powerful, interactive web application designed to help developer
 - **Documentation**: Export well-documented patterns for team sharing
 - **Testing**: Verify patterns against multiple test cases
 
-## 🔧 Technical Details
+##  Technical Details
 
 ### Built With
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
@@ -50,7 +53,7 @@ Works in all modern browsers:
 - Optimized regex processing for real-time feedback
 - Efficient visualization rendering even for complex patterns
 
-## 🚀 Getting Started
+##  Getting Started
 
 1. Clone the repository
 2. Open `index.html` in your browser
@@ -58,11 +61,11 @@ Works in all modern browsers:
 
 No build tools or dependencies required for basic usage.
 
-## 📝 License
+##  License
 
 This project is open source under the MIT License.
 
-## 🙏 Acknowledgements
+##  Acknowledgements
 
 - Regular expression engine: native JavaScript
 - Icons: Font Awesome
