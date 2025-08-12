@@ -47,5 +47,10 @@
     { "source": "/api/patterns", "destination": "/api/patterns.js" },
     { "source": "/api/submit", "destination": "/api/submit.js" },
     { "source": "/api/pattern", "destination": "/api/pattern.js" }
-  ]
+  ],
+  "build": {
+    "env": {
+      "PATTERNS_DATA_FILE": "community-patterns.json"
+    }
+  }
 }

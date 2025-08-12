@@ -7,7 +7,7 @@
 mkdir -p api
 
 # Make sure the patterns.json file exists and is writable
-touch api/patterns.json
-chmod 666 api/patterns.json
+touch api/community-patterns.json
+chmod 666 api/community-patterns.json
 
 echo "API files prepared for deployment!"

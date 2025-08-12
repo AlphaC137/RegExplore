@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const PATTERNS_FILE = path.join(__dirname, 'patterns.json');
+const PATTERNS_FILE = path.join(__dirname, 'community-patterns.json');
 
 // Helper function to read patterns from file
 function readPatterns() {
