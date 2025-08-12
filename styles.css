@@ -28,6 +28,15 @@
     --viz-quantifier: #f72585;
     --viz-anchor: #4cc9f0;
     
+    /* Component/theme extras (used in community cards, code blocks, etc.) */
+    --card-bg: var(--bg-secondary);
+    --code-bg: var(--bg-tertiary);
+    --mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --tag-bg: #eef2f7;
+    --tag-text: #324055;
+    --primary-color: var(--accent-color);
+    --hover-bg: rgba(0, 0, 0, 0.05);
+    
     /* Testing colors */
     --test-pass: #d9f0e0;
     --test-fail: #f9e3e3;
@@ -53,6 +62,13 @@
     /* Testing colors */
     --test-pass: #163829;
     --test-fail: #3b1919;
+    
+    /* Component/theme extras (dark mode) */
+    --card-bg: var(--bg-secondary);
+    --code-bg: #1a1a1a;
+    --tag-bg: #2a2f36;
+    --tag-text: #c7d1dc;
+    --hover-bg: rgba(255, 255, 255, 0.06);
 }
 
 /* Reset and base styles */

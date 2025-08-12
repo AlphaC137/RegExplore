@@ -4,7 +4,7 @@
 
 ![App Diagram Flow](/images/flow.png)
 
-RegExplore is a powerful, interactive web application designed to help developers create, test, understand, and visualize regular expressions in real-time. Built with pure JavaScript, HTML, and CSS, this client-side application requires no backend and offers a comprehensive set of tools for working with regex patterns.
+RegExplore is a powerful, interactive web application designed to help developers create, test, understand, and visualize regular expressions in real-time. It’s primarily client-side (HTML/CSS/JS). For the Community Patterns feature, simple serverless API routes are provided that read/write a JSON file.
 
 ## Key Features
 
@@ -117,13 +117,23 @@ To share your regex pattern with the community:
 
 The Community Patterns feature uses:
 
-- Serverless API routes to store and retrieve patterns
-- JSON file storage for persistence
+- Serverless API routes to store and retrieve patterns (see `api/`)
+- Vercel KV for persistence (preferred) with filesystem JSON fallback for local dev
 - Client-side search with Fuse.js for fast filtering
 
 ```bash
 # API Endpoints
-GET /api/patterns - List all community patterns
-GET /api/pattern?id={id} - Get a specific pattern by ID
-POST /api/submit - Submit a new pattern
+GET /api/patterns           # List all community patterns
+GET /api/pattern?id={id}    # Get a specific pattern by ID
+POST /api/submit            # Submit a new pattern
 ```
+
+Notes on persistence and deployment:
+
+- Local dev: open `index.html` directly or serve statically; Community tab will fall back to built-in sample data if the API isn’t reachable. API routes use a JSON file fallback (`api/community-patterns.json`).
+- Vercel: the included `vercel.json` maps the API routes. To enable persistence, provision Vercel KV and set the following environment variables in your Project Settings:
+  - `KV_REST_API_URL`
+  - `KV_REST_API_TOKEN`
+  - `KV_URL` (optional, depending on client)
+  The API will automatically use KV when these are present; otherwise it falls back to the JSON file.
+- Other hosts: you’ll need a Node runtime capable of running the simple API handlers and writing the JSON file.

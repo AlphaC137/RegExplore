@@ -1,7 +1,7 @@
 // API endpoint for submitting a new pattern
 const db = require('./db');
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -20,7 +20,7 @@ module.exports = (req, res) => {
                 return res.status(400).json({ error: 'Missing required fields' });
             }
             
-            const newPattern = db.addPattern({
+            const newPattern = await db.addPattern({
                 name,
                 pattern,
                 description,
@@ -29,7 +29,7 @@ module.exports = (req, res) => {
             });
             
             return res.status(201).json(newPattern);
-        } catch (error) {
+    } catch (error) {
             console.error('Error adding pattern:', error);
             return res.status(500).json({ error: 'Failed to add pattern' });
         }

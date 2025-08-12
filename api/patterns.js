@@ -1,7 +1,7 @@
 // API endpoint for getting all patterns
 const db = require('./db');
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
     // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -12,7 +12,7 @@ module.exports = (req, res) => {
     }
     
     if (req.method === 'GET') {
-        const patterns = db.getPatterns();
+        const patterns = await db.getPatterns();
         return res.status(200).json(patterns);
     }
     

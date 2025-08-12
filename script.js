@@ -1718,16 +1718,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let code = '';
         
-        if (format === 'code') {
+    if (format === 'code') {
             switch (language) {
                 case 'javascript':
-                    code = `const regex = /${escapeRegexForString(pattern)}/${flags};\n\n// Example usage\nconst text = "your test string here";\nconst matches = text.match(regex);\nconsole.log(matches);`;
+            // Use RegExp constructor to avoid delimiter issues when pattern contains '/'
+            code = `const regex = new RegExp("${escapeRegexForString(pattern)}", "${flags}");\n\n// Example usage\nconst text = "your test string here";\nconst matches = text.match(regex);\nconsole.log(matches);`;
                     break;
                 case 'python':
                     code = `import re\n\npattern = r"${escapeRegexForString(pattern)}"\nregex = re.compile(pattern${flags ? ', ' + getPythonFlags(flags) : ''})\n\n# Example usage\ntext = "your test string here"\nmatches = regex.findall(text)\nprint(matches)`;
                     break;
                 case 'php':
-                    code = `<?php\n\n$pattern = "/${escapeRegexForString(pattern)}/${flags}";\n\n// Example usage\n$text = "your test string here";\npreg_match_all($pattern, $text, $matches);\nprint_r($matches);\n\n?>`;
+            // Prefer '~' delimiter when pattern contains '/'
+            const phpDelimiter = pattern.includes('/') ? '~' : '/';
+            code = `<?php\n\n$pattern = "${phpDelimiter}${escapeRegexForString(pattern)}${phpDelimiter}${flags}";\n\n// Example usage\n$text = "your test string here";\npreg_match_all($pattern, $text, $matches);\nprint_r($matches);\n\n?>`;
                     break;
                 case 'java':
                     code = `import java.util.regex.Matcher;\nimport java.util.regex.Pattern;\n\npublic class RegexExample {\n    public static void main(String[] args) {\n        String regex = "${escapeRegexForString(pattern)}";\n        Pattern pattern = Pattern.compile(regex${flags ? ', ' + getJavaFlags(flags) : ''});\n        \n        String text = "your test string here";\n        Matcher matcher = pattern.matcher(text);\n        \n        while (matcher.find()) {\n            System.out.println("Found: " + matcher.group());\n        }\n    }\n}`;
@@ -1736,7 +1739,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     code = `using System;\nusing System.Text.RegularExpressions;\n\nclass RegexExample\n{\n    static void Main()\n    {\n        string pattern = @"${escapeRegexForString(pattern)}";\n        RegexOptions options = ${getCSharpFlags(flags)};\n        Regex regex = new Regex(pattern, options);\n        \n        string text = "your test string here";\n        MatchCollection matches = regex.Matches(text);\n        \n        foreach (Match match in matches)\n        {\n            Console.WriteLine($"Found: {match.Value}");\n        }\n    }\n}`;
                     break;
                 case 'ruby':
-                    code = `# Ruby regex example\npattern = /${escapeRegexForString(pattern)}/${getRubyFlags(flags)}\n\n# Example usage\ntext = "your test string here"\nmatches = text.scan(pattern)\nputs matches`;
+                    // Use %r{} to avoid escaping '/' in Ruby patterns
+                    const rubyFlags = getRubyFlags(flags);
+                    code = `# Ruby regex example\npattern = %r{${escapeRegexForString(pattern)}}${rubyFlags ? rubyFlags : ''}\n\n# Example usage\ntext = "your test string here"\nmatches = text.scan(pattern)\nputs matches`;
                     break;
             }
         } else if (format === 'markdown') {
@@ -1931,10 +1936,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function generateQRCode() {
         // Clear previous QR code
-        shareQrContainer.innerHTML = '';
+    shareQrContainer.innerHTML = '';
+    const canvas = document.createElement('canvas');
+    shareQrContainer.appendChild(canvas);
         
-        // Generate new QR code
-        QRCode.toCanvas(shareQrContainer, shareUrl.value, {
+    // Generate new QR code
+    QRCode.toCanvas(canvas, shareUrl.value, {
             width: 200,
             margin: 2,
             color: {
