@@ -128,30 +128,60 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         
-        // Button actions
-        copyRegexBtn.addEventListener('click', copyRegexToClipboard);
-        saveRegexBtn.addEventListener('click', savePattern);
-        clearRegexBtn.addEventListener('click', clearInputs);
-        exportRegexBtn.addEventListener('click', openExportModal);
-        shareRegexBtn.addEventListener('click', openShareModal);
-        
-        // Theme toggle
+    // Button actions
+    copyRegexBtn.addEventListener('click', copyRegexToClipboard);
+    saveRegexBtn.addEventListener('click', savePattern);
+    clearRegexBtn.addEventListener('click', clearInputs);
+    exportRegexBtn.addEventListener('click', openExportModal);
+    shareRegexBtn.addEventListener('click', openShareModal);
+    
+    // Try Sample button
+    const trySampleBtn = document.getElementById('try-sample-btn');
+    if (trySampleBtn) {
+        trySampleBtn.addEventListener('click', loadSampleRegex);
+    }        // Theme toggle
         themeToggleBtn.addEventListener('click', toggleTheme);
         
-        // Tab navigation
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const tabName = button.getAttribute('data-tab');
-                switchTab(tabName);
-                
-                // If switching to visualizer tab, generate visualization
-                if (tabName === 'visualizer') {
-                    generateVisualization();
-                }
-            });
+    // Tab navigation
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.getAttribute('data-tab');
+            switchTab(tabName);
+            
+            // If switching to visualizer tab, generate visualization
+            if (tabName === 'visualizer') {
+                generateVisualization();
+            }
         });
         
-        // Explanation toggle
+        // Add keyboard navigation for tabs
+        button.addEventListener('keydown', (e) => {
+            const currentIndex = Array.from(tabButtons).indexOf(e.target);
+            let nextIndex;
+            
+            switch (e.key) {
+                case 'ArrowRight':
+                    nextIndex = (currentIndex + 1) % tabButtons.length;
+                    break;
+                case 'ArrowLeft':
+                    nextIndex = (currentIndex - 1 + tabButtons.length) % tabButtons.length;
+                    break;
+                case 'Home':
+                    nextIndex = 0;
+                    break;
+                case 'End':
+                    nextIndex = tabButtons.length - 1;
+                    break;
+                default:
+                    return; // Exit for other keys
+            }
+            
+            e.preventDefault();
+            const nextTab = tabButtons[nextIndex];
+            nextTab.click();
+            nextTab.focus();
+        });
+    });        // Explanation toggle
         toggleExplanationBtn.addEventListener('click', toggleExplanationMode);
         
         // Coach toggle
@@ -269,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Create highlighted HTML
-        let html = '<div class="match-results-container">';
+        let html = '<div class="match-results-container slide-in">';
         html += '<h3>Highlighted Text:</h3>';
         html += '<div class="highlighted-text">';
         
@@ -278,8 +308,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add text before the match
             html += escapeHtml(text.substring(lastIndex, match.index));
             
-            // Add highlighted match
-            html += `<mark class="match-highlight" data-match-index="${index}">${escapeHtml(match.value)}</mark>`;
+            // Add highlighted match with a data attribute for interaction
+            html += `<mark class="match-highlight" data-match-index="${index}" 
+                      title="Match ${index + 1} at position ${match.index}">${escapeHtml(match.value)}</mark>`;
             
             lastIndex = match.index + match.length;
         });
@@ -289,18 +320,27 @@ document.addEventListener('DOMContentLoaded', () => {
         html += '</div></div>';
         
         matchResults.innerHTML = html;
+        
+        // Add click event to matches for highlighting corresponding details
+        const matchHighlights = matchResults.querySelectorAll('.match-highlight');
+        matchHighlights.forEach(highlight => {
+            highlight.addEventListener('click', () => {
+                const index = parseInt(highlight.getAttribute('data-match-index'));
+                highlightMatchDetail(index);
+            });
+        });
     }
     
     function displayMatchDetails(matches) {
         if (matches.length === 0) return;
         
-        let html = '<div class="match-details-container mt-2">';
+        let html = '<div class="match-details-container mt-2 slide-in">';
         html += '<h3>Match Details:</h3>';
         html += '<div class="match-details">';
         
         matches.forEach((match, index) => {
             html += `
-                <div class="match-detail-item">
+                <div class="match-detail-item" data-match-id="${index}">
                     <div class="match-header">
                         <strong>Match ${index + 1}:</strong>
                         <span class="match-position">position ${match.index}</span>
@@ -325,6 +365,22 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Append to existing content
         matchResults.innerHTML += html;
+    }
+    
+    // Highlight a specific match detail when clicked
+    function highlightMatchDetail(index) {
+        // Remove any existing highlights
+        const allDetails = document.querySelectorAll('.match-detail-item');
+        allDetails.forEach(detail => detail.classList.remove('active-match'));
+        
+        // Add highlight to the clicked match
+        const targetDetail = document.querySelector(`.match-detail-item[data-match-id="${index}"]`);
+        if (targetDetail) {
+            targetDetail.classList.add('active-match');
+            
+            // Scroll to the detail
+            targetDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }
     
     // Technical Explanation
@@ -1413,35 +1469,79 @@ document.addEventListener('DOMContentLoaded', () => {
             let passCount = 0;
             let failCount = 0;
             
-            testCasesArray.forEach(testCase => {
-                const row = testCasesBody.querySelector(`tr[data-id="${testCase.id}"]`);
-                const resultCell = row.querySelector('.test-result');
-                
-                const isMatch = regex.test(testCase.testString);
-                const isPassing = isMatch === testCase.expectedMatch;
-                
-                if (isPassing) {
-                    passCount++;
-                    row.className = 'test-row-pass';
-                    resultCell.innerHTML = '<span class="test-result pass">PASS</span>';
-                } else {
-                    failCount++;
-                    row.className = 'test-row-fail';
-                    resultCell.innerHTML = '<span class="test-result fail">FAIL</span>';
-                }
-            });
+            // Show loading indicator
+            testSummary.innerHTML = '<div class="loading-message"><i class="fas fa-spinner fa-spin"></i> Running tests...</div>';
             
-            // Update summary
-            testSummary.innerHTML = `
-                Test results: 
-                <strong class="success">${passCount} passed</strong>, 
-                <strong class="error">${failCount} failed</strong> 
-                (${testCasesArray.length} total)
-            `;
+            // Slight delay to show loading and process each test with animation
+            setTimeout(() => {
+                testCasesArray.forEach((testCase, i) => {
+                    const row = testCasesBody.querySelector(`tr[data-id="${testCase.id}"]`);
+                    const resultCell = row.querySelector('.test-result');
+                    
+                    const isMatch = regex.test(testCase.testString);
+                    const isPassing = isMatch === testCase.expectedMatch;
+                    
+                    // Clear previous classes
+                    row.className = '';
+                    
+                    // Delay for staggered animation
+                    setTimeout(() => {
+                        if (isPassing) {
+                            passCount++;
+                            row.className = 'test-row-pass';
+                            resultCell.innerHTML = '<span class="test-result pass">PASS</span>';
+                        } else {
+                            failCount++;
+                            row.className = 'test-row-fail';
+                            resultCell.innerHTML = '<span class="test-result fail">FAIL</span>';
+                        }
+                        
+                        // Update summary after all tests are done
+                        if (i === testCasesArray.length - 1) {
+                            updateTestSummary(passCount, failCount);
+                        }
+                    }, i * 50); // Staggered by 50ms per test
+                });
+            }, 300);
             
         } catch (error) {
             testSummary.innerHTML = `<span class="error">Invalid regex: ${error.message}</span>`;
         }
+    }
+    
+    function updateTestSummary(passCount, failCount) {
+        const total = testCasesArray.length;
+        const passPercent = Math.round((passCount / total) * 100);
+        
+        let summaryClass = '';
+        if (failCount === 0) summaryClass = 'success';
+        else if (passCount === 0) summaryClass = 'error';
+        else summaryClass = 'warning';
+        
+        testSummary.innerHTML = `
+            <div class="test-summary ${summaryClass}">
+                <div class="test-summary-header">
+                    <h4>Test Results:</h4>
+                    <span class="test-percent">${passPercent}% passed</span>
+                </div>
+                <div class="test-summary-counts">
+                    <span class="success">${passCount} passed</span>
+                    <span class="error">${failCount} failed</span>
+                    <span>(${total} total)</span>
+                </div>
+            </div>
+        `;
+        
+        // Announce results for screen readers
+        const resultsAnnounce = document.createElement('div');
+        resultsAnnounce.setAttribute('aria-live', 'polite');
+        resultsAnnounce.classList.add('sr-only');
+        resultsAnnounce.textContent = `Test results: ${passCount} passed, ${failCount} failed out of ${total} tests.`;
+        document.body.appendChild(resultsAnnounce);
+        
+        setTimeout(() => {
+            resultsAnnounce.remove();
+        }, 3000);
     }
     
     function runSingleTest(testCaseId) {
@@ -2447,6 +2547,65 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
+    }
+    
+    // Load a sample regex for demonstration
+    function loadSampleRegex() {
+        // Array of sample regex patterns with descriptions and test text
+        const samples = [
+            {
+                pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}',
+                flags: 'g',
+                description: 'Email validator',
+                testText: 'Contact us at info@example.com or support@company.co.uk for assistance.\nInvalid emails: test@, @domain.com, missing.domain@com'
+            },
+            {
+                pattern: '(https?:\\/\\/)?([\\w\\d-]+\\.)+[\\w-]+([\\/\\?\\=\\&\\#\\.]?[\\w-]+)*\\/?',
+                flags: 'g',
+                description: 'URL matcher',
+                testText: 'Visit our website at https://example.com or www.company.org.\nDocumentation: https://docs.example.com/api?version=2&format=json'
+            },
+            {
+                pattern: '\\b\\d{3}[-.\\s]?\\d{3}[-.\\s]?\\d{4}\\b',
+                flags: 'g',
+                description: 'US Phone number',
+                testText: 'Call us at 555-123-4567 or 555.123.4567 or 5551234567 or (555) 123-4567.\nInternational: +1 555 123 4567'
+            },
+            {
+                pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
+                flags: '',
+                description: 'Strong password validator',
+                testText: 'StrongP@ss1\nWeakpass\nNoDigit@\nNOSYMBOL123\nno-upper-case-2@'
+            },
+            {
+                pattern: '#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})',
+                flags: 'g',
+                description: 'Hex color code',
+                testText: 'Color options: #FFF, #123456, #A7C, #4a90e2.\nInvalid: #GHIJK, #12, #1234567'
+            }
+        ];
+        
+        // Pick a random sample
+        const sample = samples[Math.floor(Math.random() * samples.length)];
+        
+        // Load the sample into the UI
+        regexInput.value = sample.pattern;
+        
+        // Set flags
+        flagCheckboxes.forEach(checkbox => {
+            checkbox.checked = sample.flags.includes(checkbox.value);
+        });
+        updateFlagsDisplay();
+        
+        // Set test text
+        testInput.value = sample.testText;
+        
+        // Process the regex
+        processRegex();
+        updateCoach();
+        
+        // Show a notification
+        showNotification(`Loaded sample: ${sample.description}`);
     }
 
     // Debounce utility
