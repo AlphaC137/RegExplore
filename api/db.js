@@ -1,4 +1,4 @@
-// Database module for patterns with Vercel KV (preferred) and filesystem fallback
+// Database module for patterns with Supabase (preferred), Vercel KV (secondary), and filesystem fallback
 const fs = require('fs');
 const path = require('path');
 
@@ -11,6 +11,99 @@ try {
 }
 
 const hasKV = !!kv;
+
+// ------------- Supabase helpers -------------
+let supaClientPromise = null;
+async function getSupabaseClient() {
+    if (supaClientPromise) return supaClientPromise;
+    try {
+        const url = process.env.SUPABASE_URL;
+        const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE;
+        if (!url || !key) return null;
+        const { createClient } = await import('@supabase/supabase-js');
+        const client = createClient(url, key, { auth: { persistSession: false } });
+        supaClientPromise = Promise.resolve(client);
+        return client;
+    } catch (e) {
+        console.error('Supabase client init failed:', e.message || e);
+        return null;
+    }
+}
+
+async function supaGetPatterns() {
+    const supa = await getSupabaseClient();
+    if (!supa) return null;
+    const { data, error } = await supa
+        .from('patterns')
+        .select('*')
+        .order('createdAt', { ascending: false });
+    if (error) {
+        console.error('Supabase select error:', error.message || error);
+        return [];
+    }
+    return (data || []).map(row => ({
+        id: row.id,
+        name: row.name,
+        pattern: row.pattern,
+        description: row.description,
+        author: row.author,
+        tags: Array.isArray(row.tags) ? row.tags : (row.tags ? row.tags : []),
+        createdAt: row.createdAt
+    }));
+}
+
+async function supaGetPattern(id) {
+    const supa = await getSupabaseClient();
+    if (!supa) return null;
+    const { data, error } = await supa
+        .from('patterns')
+        .select('*')
+        .eq('id', id)
+        .limit(1)
+        .maybeSingle();
+    if (error) {
+        console.error('Supabase get error:', error.message || error);
+        return null;
+    }
+    if (!data) return null;
+    return {
+        id: data.id,
+        name: data.name,
+        pattern: data.pattern,
+        description: data.description,
+        author: data.author,
+        tags: Array.isArray(data.tags) ? data.tags : (data.tags ? data.tags : []),
+        createdAt: data.createdAt
+    };
+}
+
+async function supaAddPattern(pattern) {
+    const supa = await getSupabaseClient();
+    if (!supa) return null;
+    const newPattern = {
+        id: `comm-${Date.now()}`,
+        ...pattern,
+        tags: Array.isArray(pattern.tags) ? pattern.tags : (pattern.tags ? [pattern.tags] : []),
+        createdAt: new Date().toISOString().split('T')[0]
+    };
+    const { data, error } = await supa.from('patterns').insert(newPattern).select('*').maybeSingle();
+    if (error) {
+        console.error('Supabase insert error:', error.message || error);
+        return null;
+    }
+    return data || newPattern;
+}
+
+async function supaDeletePattern(id) {
+    const supa = await getSupabaseClient();
+    if (!supa) return false;
+    const { error } = await supa.from('patterns').delete().eq('id', id);
+    if (error) {
+        console.error('Supabase delete error:', error.message || error);
+        return false;
+    }
+    return true;
+}
 
 const PATTERNS_FILE = process.env.PATTERNS_DATA_FILE
   ? path.resolve(__dirname, process.env.PATTERNS_DATA_FILE)
@@ -111,15 +204,26 @@ async function kvDeletePattern(id) {
 
 module.exports = {
     getPatterns: async () => {
+        // Prefer Supabase
+        const supa = await getSupabaseClient();
+        if (supa) return supaGetPatterns();
+        // Else KV
         if (hasKV) return kvGetPatterns();
         return readPatternsFile();
     },
     getPattern: async (id) => {
+        const supa = await getSupabaseClient();
+        if (supa) return supaGetPattern(id);
         if (hasKV) return kvGetPattern(id);
         const patterns = readPatternsFile();
         return patterns.find(p => p.id === id) || null;
     },
     addPattern: async (pattern) => {
+        const supa = await getSupabaseClient();
+        if (supa) {
+            const added = await supaAddPattern(pattern);
+            if (added) return added;
+        }
         if (hasKV) return kvAddPattern(pattern);
         const patterns = readPatternsFile();
         const newPattern = {
@@ -132,6 +236,8 @@ module.exports = {
         return newPattern;
     },
     deletePattern: async (id) => {
+        const supa = await getSupabaseClient();
+        if (supa) return supaDeletePattern(id);
         if (hasKV) return kvDeletePattern(id);
         const patterns = readPatternsFile();
         const initialLength = patterns.length;

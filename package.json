@@ -4,8 +4,8 @@
   "description": "Interactive regular expression playground and visualizer",
   "main": "index.html",
   "scripts": {
-  "start": "npx serve -p 5173",
-  "dev": "vercel dev",
+    "start": "npx serve -p 5173",
+    "dev": "vercel dev",
     "test": "echo \"No tests configured\""
   },
   "keywords": [
@@ -22,6 +22,7 @@
     "url": "https://github.com/AlphaC137/RegExplore.git"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.55.0",
     "@vercel/kv": "^1.0.1"
   },
   "engines": {
