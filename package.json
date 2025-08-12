@@ -5,6 +5,7 @@
   "main": "index.html",
   "scripts": {
     "start": "npx serve",
+    "dev": "vercel dev",
     "test": "echo \"No tests configured\""
   },
   "keywords": [
@@ -19,5 +20,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/AlphaC137/RegExplore.git"
+  },
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
   }
 }

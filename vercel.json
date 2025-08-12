@@ -32,6 +32,20 @@
           "value": "public, max-age=86400, immutable"
         }
       ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
+        }
+      ]
     }
+  ],
+  "rewrites": [
+    { "source": "/api/patterns", "destination": "/api/patterns.js" },
+    { "source": "/api/submit", "destination": "/api/submit.js" },
+    { "source": "/api/pattern", "destination": "/api/pattern.js" }
   ]
 }

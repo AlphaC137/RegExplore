@@ -2072,73 +2072,65 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Community Patterns
     function loadCommunityPatterns() {
-        // In a real implementation, this would fetch from a backend/API
-        // For demo purposes, we'll simulate a fetch delay and use mock data
+        // Show loading message
+        communityPatternsGrid.innerHTML = '<p class="loading-message"><i class="fas fa-spinner fa-spin"></i> Loading community patterns...</p>';
         
-        setTimeout(() => {
-            communityPatternsArray = [
-                {
-                    id: 'comm-1',
-                    name: 'Twitter/X Username',
-                    pattern: '^@?[a-zA-Z0-9_]{1,15}$',
-                    description: 'Validates Twitter/X usernames, which must be 1-15 characters long and can only contain letters, numbers, and underscores. The @ symbol is optional.',
-                    author: 'RegexFan',
-                    tags: ['validation', 'social-media', 'web'],
-                    createdAt: '2024-11-15'
-                },
-                {
-                    id: 'comm-2',
-                    name: 'Semantic Version',
-                    pattern: '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$',
-                    description: 'Validates semantic versioning (semver) strings like 1.0.0, 2.3.4-beta.1, etc.',
-                    author: 'DevToolMaster',
-                    tags: ['validation', 'code', 'versioning'],
-                    createdAt: '2025-01-02'
-                },
-                {
-                    id: 'comm-3',
-                    name: 'US/Canada Postal Code',
-                    pattern: '([A-Za-z]\\d[A-Za-z][ -]?\\d[A-Za-z]\\d)|(\\d{5}(?:[-\\s]\\d{4})?)',
-                    description: 'Matches both US ZIP codes (12345 or 12345-6789) and Canadian postal codes (A1A 1A1 or A1A-1A1).',
-                    author: 'GeoRegexer',
-                    tags: ['validation', 'address', 'data-parsing'],
-                    createdAt: '2025-03-12'
-                },
-                {
-                    id: 'comm-4',
-                    name: 'ISBN-13',
-                    pattern: '^(?:ISBN(?:-13)?:? )?(?=[0-9]{13}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)97[89][- ]?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9]$',
-                    description: 'Validates ISBN-13 numbers, with or without formatting characters and the "ISBN-13:" prefix.',
-                    author: 'BookwormDev',
-                    tags: ['validation', 'data-parsing', 'books'],
-                    createdAt: '2025-04-18'
-                },
-                {
-                    id: 'comm-5',
-                    name: 'Extract Markdown Links',
-                    pattern: '\\[([^\\[\\]]*?)\\]\\((.*?)\\)',
-                    description: 'Extracts markdown links in the format [link text](url). Capturing groups: 1=link text, 2=URL.',
-                    author: 'DocNinja',
-                    tags: ['extraction', 'markdown', 'web'],
-                    createdAt: '2025-02-08'
-                },
-                {
-                    id: 'comm-6',
-                    name: 'Extract Image Dimensions',
-                    pattern: '(\\d+)\\s*x\\s*(\\d+)',
-                    description: 'Extracts image dimensions in the format 123x456, with optional whitespace around the "x". Captures width and height separately.',
-                    author: 'PixelParser',
-                    tags: ['extraction', 'formatting', 'images'],
-                    createdAt: '2025-05-22'
+        // Fetch patterns from the API
+        fetch('/api/patterns')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch patterns');
                 }
-            ];
-            
-            // Initialize search functionality
-            initializeSearch();
-            
-            // Render community patterns
-            renderCommunityPatterns(communityPatternsArray);
-        }, 500);
+                return response.json();
+            })
+            .then(patterns => {
+                communityPatternsArray = patterns;
+                
+                // Initialize search functionality
+                initializeSearch();
+                
+                // Render community patterns
+                renderCommunityPatterns(communityPatternsArray);
+            })
+            .catch(error => {
+                console.error('Error loading community patterns:', error);
+                communityPatternsGrid.innerHTML = `<p class="error">Failed to load community patterns: ${error.message}</p>`;
+                
+                // Fall back to mock data for development/demo purposes
+                communityPatternsArray = [
+                    {
+                        id: 'comm-1',
+                        name: 'Twitter/X Username',
+                        pattern: '^@?[a-zA-Z0-9_]{1,15}$',
+                        description: 'Validates Twitter/X usernames, which must be 1-15 characters long and can only contain letters, numbers, and underscores. The @ symbol is optional.',
+                        author: 'RegexFan',
+                        tags: ['validation', 'social-media', 'web'],
+                        createdAt: '2024-11-15'
+                    },
+                    {
+                        id: 'comm-2',
+                        name: 'Semantic Version',
+                        pattern: '^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$',
+                        description: 'Validates semantic versioning (semver) strings like 1.0.0, 2.3.4-beta.1, etc.',
+                        author: 'DevToolMaster',
+                        tags: ['validation', 'code', 'versioning'],
+                        createdAt: '2025-01-02'
+                    },
+                    {
+                        id: 'comm-3',
+                        name: 'US/Canada Postal Code',
+                        pattern: '([A-Za-z]\\d[A-Za-z][ -]?\\d[A-Za-z]\\d)|(\\d{5}(?:[-\\s]\\d{4})?)',
+                        description: 'Matches both US ZIP codes (12345 or 12345-6789) and Canadian postal codes (A1A 1A1 or A1A-1A1).',
+                        author: 'GeoRegexer',
+                        tags: ['validation', 'address', 'data-parsing'],
+                        createdAt: '2025-03-12'
+                    }
+                ];
+                
+                // Initialize search with fallback data
+                initializeSearch();
+                renderCommunityPatterns(communityPatternsArray);
+            });
     }
     
     function renderCommunityPatterns(patterns) {
@@ -2161,8 +2153,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="community-pattern-regex">/${escapeHtml(pattern.pattern)}/</div>
                     <p class="community-pattern-description">${escapeHtml(pattern.description)}</p>
-                    <div class="community-pattern-tags">
-                        ${tagsHtml}
+                    <div class="community-pattern-footer">
+                        <div class="community-pattern-tags">
+                            ${tagsHtml}
+                        </div>
+                        <a href="/pattern-detail.html?id=${pattern.id}" class="view-detail-link" title="View detailed information">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
                     </div>
                 </div>
             `;
@@ -2173,7 +2170,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add click event to load patterns
         const patternCards = communityPatternsGrid.querySelectorAll('.community-pattern-card');
         patternCards.forEach(card => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', (e) => {
+                // Don't trigger if clicking on the view detail link
+                if (e.target.closest('.view-detail-link')) {
+                    return;
+                }
+                
                 const patternId = card.getAttribute('data-id');
                 const pattern = communityPatternsArray.find(p => p.id === patternId);
                 if (pattern) {
@@ -2253,36 +2255,66 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // In a real app, this would send data to a server
-        // For demo purposes, we'll add it locally and show a success message
+        // Show loading/processing indicator
+        const submitBtn = document.getElementById('submit-pattern-btn');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+        submitBtn.disabled = true;
         
-        const newPattern = {
-            id: `comm-${Date.now()}`,
+        // Prepare data for submission
+        const patternData = {
             name,
             pattern,
             description,
-            author: 'You', // In a real app, this would be the user's actual name
-            tags,
-            createdAt: new Date().toISOString().split('T')[0]
+            author: 'You', // In a real app, this would be the user's actual name or username
+            tags
         };
         
-        // Add to the beginning of the array
-        communityPatternsArray.unshift(newPattern);
-        
-        // Update search index
-        initializeSearch();
-        
-        // Re-render community patterns
-        renderCommunityPatterns(communityPatternsArray);
-        
-        // Show success message
-        showNotification('Pattern published to community!');
-        
-        // Close modal and reset form
-        closeModal();
-        publishName.value = '';
-        publishDescription.value = '';
-        publishTags.value = '';
+        // Send to the API
+        fetch('/api/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(patternData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to publish pattern');
+            }
+            return response.json();
+        })
+        .then(newPattern => {
+            // Add to the beginning of the array
+            communityPatternsArray.unshift(newPattern);
+            
+            // Update search index
+            initializeSearch();
+            
+            // Re-render community patterns
+            renderCommunityPatterns(communityPatternsArray);
+            
+            // Show success message
+            showNotification('Pattern published to community!');
+            
+            // Close modal and reset form
+            closeModal();
+            publishName.value = '';
+            publishDescription.value = '';
+            publishTags.value = '';
+            
+            // Switch to community tab to show the new pattern
+            switchTab('community');
+        })
+        .catch(error => {
+            console.error('Error publishing pattern:', error);
+            showNotification(`Failed to publish pattern: ${error.message}`, 'error');
+        })
+        .finally(() => {
+            // Reset button
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        });
     }
     
     // Saved patterns functionality

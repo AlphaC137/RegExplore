@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pattern Details - RegExplore</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔍</text></svg>" />
+    <style>
+        .pattern-detail-container {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .pattern-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .pattern-detail-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .pattern-code {
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .pattern-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .pattern-tag {
+            background-color: #e0e0e0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+        
+        .error-message {
+            color: #e53935;
+            text-align: center;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <header>
+        <div class="container header-content">
+            <h1><a href="/" class="home-link"><span class="highlight">RegEx</span>plore</a></h1>
+            <div class="theme-toggle">
+                <button id="theme-toggle-btn" aria-label="Toggle dark/light mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="pattern-detail" class="pattern-detail-container">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <span>Loading pattern...</span>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>RegExplore - Interactive Regular Expression Playground</p>
+            <p><span class="highlight">v2.0</span> | Last Updated: 2025-06-08</p>
+            <p>&copy; 2025 | Built with ☕ for developers</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const patternDetailContainer = document.getElementById('pattern-detail');
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            
+            // Theme toggle functionality
+            themeToggleBtn.addEventListener('click', toggleTheme);
+            
+            // Load user theme preference
+            loadUserPreferences();
+            
+            // Get pattern ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const patternId = urlParams.get('id');
+            
+            if (!patternId) {
+                showError('Pattern ID is missing');
+                return;
+            }
+            
+            // Fetch pattern details
+            fetch(`/api/pattern?id=${patternId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch pattern');
+                    }
+                    return response.json();
+                })
+                .then(pattern => {
+                    renderPatternDetail(pattern);
+                })
+                .catch(error => {
+                    console.error('Error loading pattern:', error);
+                    showError(`Failed to load pattern: ${error.message}`);
+                });
+            
+            function renderPatternDetail(pattern) {
+                // Create tags HTML
+                const tagsHtml = pattern.tags.map(tag => 
+                    `<span class="pattern-tag">${escapeHtml(tag)}</span>`
+                ).join('');
+                
+                // Format date
+                const date = new Date(pattern.createdAt);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                // Render HTML
+                patternDetailContainer.innerHTML = `
+                    <div class="pattern-detail-header">
+                        <h2>${escapeHtml(pattern.name)}</h2>
+                        <a href="/" class="btn btn-sm"><i class="fas fa-arrow-left"></i> Back to RegExplore</a>
+                    </div>
+                    
+                    <div class="pattern-detail-meta">
+                        <span><i class="fas fa-user"></i> ${escapeHtml(pattern.author)}</span>
+                        <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
+                    </div>
+                    
+                    <div class="pattern-code">
+                        <code>/${escapeHtml(pattern.pattern)}/</code>
+                    </div>
+                    
+                    <div class="pattern-description">
+                        <h3>Description</h3>
+                        <p>${escapeHtml(pattern.description)}</p>
+                    </div>
+                    
+                    <div class="pattern-tags">
+                        <strong>Tags:</strong>
+                        ${tagsHtml}
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="try-pattern-btn" class="btn">
+                            <i class="fas fa-play"></i> Try this Pattern
+                        </button>
+                        <button id="copy-pattern-btn" class="btn">
+                            <i class="fas fa-copy"></i> Copy Pattern
+                        </button>
+                    </div>
+                `;
+                
+                // Add event listeners
+                document.getElementById('try-pattern-btn').addEventListener('click', () => {
+                    window.location.href = `/?pattern=${encodeURIComponent(pattern.pattern)}`;
+                });
+                
+                document.getElementById('copy-pattern-btn').addEventListener('click', () => {
+                    navigator.clipboard.writeText(pattern.pattern).then(() => {
+                        showNotification('Pattern copied to clipboard!');
+                    }).catch(err => {
+                        showNotification('Failed to copy pattern to clipboard', 'error');
+                    });
+                });
+            }
+            
+            function showError(message) {
+                patternDetailContainer.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                        <h3>Error</h3>
+                        <p>${escapeHtml(message)}</p>
+                        <a href="/" class="btn mt-2">Go back to RegExplore</a>
+                    </div>
+                `;
+            }
+            
+            function toggleTheme() {
+                const body = document.body;
+                const isDarkMode = body.classList.toggle('dark-mode');
+                
+                const themeIcon = themeToggleBtn.querySelector('i');
+                themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+                
+                // Save preference to localStorage
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            }
+            
+            function loadUserPreferences() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    themeToggleBtn.querySelector('i').className = 'fas fa-sun';
+                }
+            }
+            
+            function showNotification(message, type = 'success') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                // Add to body
+                document.body.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 10);
+                
+                // Animate out and remove
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 300);
+                }, 3000);
+            }
+            
+            function escapeHtml(text) {
+                if (typeof text !== 'string') return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        });
+    </script>
+</body>
+</html>

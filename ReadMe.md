@@ -90,12 +90,40 @@ This project is optimized for deployment on Vercel:
 
 The site will be deployed to a URL like `https://regexplore.vercel.app` (depending on your project name).
 
-## License
+## Community Patterns
 
-This project is open source under the MIT License.
+The Community Patterns feature allows users to share and discover regex patterns created by other developers:
 
-## Acknowledgements
+### Using Community Patterns
 
-- Regular expression engine: native JavaScript
-- Icons: Font Awesome
-- Libraries: vis.js, highlight.js, Fuse.js, QRCode.js, FileSaver.js, marked.js
+1. Click on the "Community Patterns" tab to browse available patterns
+2. Use the search bar or tag filters to find specific patterns
+3. Click on a pattern card to load it into the editor
+4. Click the external link icon to view detailed information about the pattern
+
+### Publishing Your Patterns
+
+To share your regex pattern with the community:
+
+1. Create and test your regex pattern in the editor
+2. Click the "Publish My Pattern" button
+3. Fill in the required information:
+   - Pattern Name: A descriptive title
+   - Description: Explain what your pattern does and how to use it
+   - Tags: Comma-separated categories (e.g., "validation, email, web")
+4. Click "Publish Pattern" to share it with the community
+
+### Technical Implementation
+
+The Community Patterns feature uses:
+
+- Serverless API routes to store and retrieve patterns
+- JSON file storage for persistence
+- Client-side search with Fuse.js for fast filtering
+
+```bash
+# API Endpoints
+GET /api/patterns - List all community patterns
+GET /api/pattern?id={id} - Get a specific pattern by ID
+POST /api/submit - Submit a new pattern
+```

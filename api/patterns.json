@@ -1,0 +1,56 @@
+[
+  {
+    "id": "comm-1",
+    "name": "Twitter/X Username",
+    "pattern": "^@?[a-zA-Z0-9_]{1,15}$",
+    "description": "Validates Twitter/X usernames, which must be 1-15 characters long and can only contain letters, numbers, and underscores. The @ symbol is optional.",
+    "author": "RegexFan",
+    "tags": ["validation", "social-media", "web"],
+    "createdAt": "2024-11-15"
+  },
+  {
+    "id": "comm-2",
+    "name": "Semantic Version",
+    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+    "description": "Validates semantic versioning (semver) strings like 1.0.0, 2.3.4-beta.1, etc.",
+    "author": "DevToolMaster",
+    "tags": ["validation", "code", "versioning"],
+    "createdAt": "2025-01-02"
+  },
+  {
+    "id": "comm-3",
+    "name": "US/Canada Postal Code",
+    "pattern": "([A-Za-z]\\d[A-Za-z][ -]?\\d[A-Za-z]\\d)|(\\d{5}(?:[-\\s]\\d{4})?)",
+    "description": "Matches both US ZIP codes (12345 or 12345-6789) and Canadian postal codes (A1A 1A1 or A1A-1A1).",
+    "author": "GeoRegexer",
+    "tags": ["validation", "address", "data-parsing"],
+    "createdAt": "2025-03-12"
+  },
+  {
+    "id": "comm-4",
+    "name": "ISBN-13",
+    "pattern": "^(?:ISBN(?:-13)?:? )?(?=[0-9]{13}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)97[89][- ]?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9]$",
+    "description": "Validates ISBN-13 numbers, with or without formatting characters and the \"ISBN-13:\" prefix.",
+    "author": "BookwormDev",
+    "tags": ["validation", "data-parsing", "books"],
+    "createdAt": "2025-04-18"
+  },
+  {
+    "id": "comm-5",
+    "name": "Extract Markdown Links",
+    "pattern": "\\[([^\\[\\]]*?)\\]\\((.*?)\\)",
+    "description": "Extracts markdown links in the format [link text](url). Capturing groups: 1=link text, 2=URL.",
+    "author": "DocNinja",
+    "tags": ["extraction", "markdown", "web"],
+    "createdAt": "2025-02-08"
+  },
+  {
+    "id": "comm-6",
+    "name": "Extract Image Dimensions",
+    "pattern": "(\\d+)\\s*x\\s*(\\d+)",
+    "description": "Extracts image dimensions in the format 123x456, with optional whitespace around the \"x\". Captures width and height separately.",
+    "author": "PixelParser",
+    "tags": ["extraction", "formatting", "images"],
+    "createdAt": "2025-05-22"
+  }
+]
