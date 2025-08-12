@@ -17,6 +17,10 @@
       name="description"
       content="A clean, interactive web application to create, test, and understand regular expressions in real-time."
     />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="theme-color" content="#0066ff" />
   </head>
   <body class="light-mode">
     <header>
@@ -173,18 +177,18 @@
       </section>
 
       <section class="results-section">
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="matches">Matches</button>
-          <button class="tab-btn" data-tab="explanation">Explanation</button>
-          <button class="tab-btn" data-tab="visualizer">Visualizer</button>
-          <button class="tab-btn" data-tab="library">Pattern Library</button>
-          <button class="tab-btn" data-tab="community">
+        <div class="tabs" role="tablist" aria-label="Result tabs">
+          <button class="tab-btn active" data-tab="matches" role="tab" aria-selected="true" tabindex="0">Matches</button>
+          <button class="tab-btn" data-tab="explanation" role="tab" aria-selected="false" tabindex="-1">Explanation</button>
+          <button class="tab-btn" data-tab="visualizer" role="tab" aria-selected="false" tabindex="-1">Visualizer</button>
+          <button class="tab-btn" data-tab="library" role="tab" aria-selected="false" tabindex="-1">Pattern Library</button>
+          <button class="tab-btn" data-tab="community" role="tab" aria-selected="false" tabindex="-1">
             Community Patterns
           </button>
         </div>
 
         <div class="tab-content">
-          <div id="matches-tab" class="tab-pane active">
+          <div id="matches-tab" class="tab-pane active" role="tabpanel" aria-labelledby="matches" aria-live="polite">
             <div id="match-results">
               <p class="empty-state">
                 Enter a regex pattern and test text to see matches.
@@ -192,7 +196,7 @@
             </div>
           </div>
 
-          <div id="explanation-tab" class="tab-pane">
+          <div id="explanation-tab" class="tab-pane" role="tabpanel" aria-labelledby="explanation">
             <div class="explanation-toggle-container">
               <button id="toggle-explanation-mode" class="btn btn-sm">
                 <i class="fas fa-exchange-alt"></i> Toggle Technical/Plain
@@ -211,7 +215,7 @@
             </div>
           </div>
 
-          <div id="visualizer-tab" class="tab-pane">
+          <div id="visualizer-tab" class="tab-pane" role="tabpanel" aria-labelledby="visualizer">
             <div class="visualizer-container">
               <div id="visualizer-loading" class="loading-indicator">
                 <i class="fas fa-spinner fa-spin"></i> Generating
@@ -239,7 +243,7 @@
             </div>
           </div>
 
-          <div id="library-tab" class="tab-pane">
+          <div id="library-tab" class="tab-pane" role="tabpanel" aria-labelledby="library">
             <div class="pattern-library">
               <h3>Common Patterns</h3>
               <div class="pattern-grid" id="pattern-grid">
@@ -248,7 +252,7 @@
             </div>
           </div>
 
-          <div id="community-tab" class="tab-pane">
+          <div id="community-tab" class="tab-pane" role="tabpanel" aria-labelledby="community">
             <div class="community-patterns-header">
               <h3>Community Patterns</h3>
               <div class="community-controls">
@@ -441,20 +445,20 @@
     </footer>
 
     <!-- Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/vis-network.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/core.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/javascript.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/python.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/php.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/java.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/csharp.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/ruby.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/vis-network.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/core.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/javascript.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/python.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/php.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/java.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/csharp.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/lib/languages/ruby.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js" crossorigin="anonymous"></script>
 
     <!-- App scripts -->
-    <script src="script.js"></script>
+  <script defer src="script.js"></script>
   </body>
 </html>

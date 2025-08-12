@@ -112,17 +112,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function setupEventListeners() {
-        // Main functionality
-        regexInput.addEventListener('input', () => {
+        // Debounced handlers to avoid heavy work on every keystroke
+        const debouncedProcessAndCoach = debounce(() => {
             processRegex();
             updateCoach();
-        });
-        testInput.addEventListener('input', processRegex);
+        }, 200);
+
+        // Main functionality
+        regexInput.addEventListener('input', debouncedProcessAndCoach);
+        testInput.addEventListener('input', debouncedProcessAndCoach);
         flagCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
                 updateFlagsDisplay();
-                processRegex();
-                updateCoach();
+                debouncedProcessAndCoach();
             });
         });
         
@@ -240,23 +242,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        const matches = [];
-        const globalRegex = new RegExp(currentRegex.source, currentRegex.flags.includes('g') ? currentRegex.flags : currentRegex.flags + 'g');
-        
-        let match;
-        while ((match = globalRegex.exec(text)) !== null) {
-            matches.push({
-                value: match[0],
-                index: match.index,
-                groups: match.slice(1),
-                length: match[0].length
-            });
-            
-            // Prevent infinite loops for zero-length matches
-            if (match.index === globalRegex.lastIndex) {
-                globalRegex.lastIndex++;
-            }
-        }
+        const gFlags = currentRegex.flags.includes('g') ? currentRegex.flags : currentRegex.flags + 'g';
+        const globalRegex = new RegExp(currentRegex.source, gFlags);
+        const matches = [...text.matchAll(globalRegex)].map(m => ({
+            value: m[0],
+            index: m.index,
+            groups: m.slice(1),
+            length: m[0].length
+        }));
         
         // Update match count
         const matchCountText = matches.length === 1 ? '1 match found' : `${matches.length} matches found`;
@@ -343,12 +336,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Technical explanation
-        const technicalExplanation = explainRegexTechnical(pattern);
+    const technicalExplanation = explainRegexTechnical(pattern);
         regexExplanation.innerHTML = technicalExplanation;
         
         // Plain English explanation
-        const plainExplanation = explainRegexPlainEnglish(pattern);
-        regexPlainExplanation.innerHTML = plainExplanation;
+    const plainExplanation = explainRegexPlainEnglish(pattern);
+    regexPlainExplanation.innerHTML = plainExplanation;
         
         // Show the appropriate explanation based on current mode
         if (isPlainExplanation) {
@@ -378,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="token">${escapeHtml(token.value)}</span>
                         </div>
                         <div class="explanation-meaning">
-                            ${token.explanation}
+                            ${escapeHtml(token.explanation)}
                         </div>
                     </div>
                 `;
@@ -1817,12 +1810,12 @@ document.addEventListener('DOMContentLoaded', () => {
         url.search = ''; // Clear existing query params
         
         // Add regex parameters
-        url.searchParams.set('pattern', encodeURIComponent(pattern));
+        url.searchParams.set('pattern', pattern);
         if (flags) url.searchParams.set('flags', flags);
         
         // Add test text if the option is checked
         if (shareIncludeTest.checked && testInput.value) {
-            url.searchParams.set('test', encodeURIComponent(testInput.value));
+            url.searchParams.set('test', testInput.value);
         }
         
         shareUrl.value = url.toString();
@@ -1859,9 +1852,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         
         if (urlParams.has('pattern')) {
-            const pattern = decodeURIComponent(urlParams.get('pattern'));
+            const pattern = urlParams.get('pattern');
             const flags = urlParams.get('flags') || '';
-            const testText = urlParams.has('test') ? decodeURIComponent(urlParams.get('test')) : '';
+            const testText = urlParams.has('test') ? urlParams.get('test') : '';
             
             // Set the pattern
             regexInput.value = pattern;
@@ -2313,16 +2306,22 @@ document.addEventListener('DOMContentLoaded', () => {
         tabButtons.forEach(btn => {
             if (btn.getAttribute('data-tab') === tabName) {
                 btn.classList.add('active');
+                btn.setAttribute('aria-selected', 'true');
+                btn.setAttribute('tabindex', '0');
             } else {
                 btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+                btn.setAttribute('tabindex', '-1');
             }
         });
         
         tabPanes.forEach(pane => {
             if (pane.id === `${tabName}-tab`) {
                 pane.classList.add('active');
+                pane.removeAttribute('hidden');
             } else {
                 pane.classList.remove('active');
+                pane.setAttribute('hidden', '');
             }
         });
     }
@@ -2430,7 +2429,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function initializeHighlightJS() {
-        hljs.highlightAll();
+        // No-op initialization; we highlight only the export preview on demand
+        try {
+            if (window.hljs && typeof hljs.configure === 'function') {
+                hljs.configure({ ignoreUnescapedHTML: true });
+            }
+        } catch (_) { /* ignore */ }
     }
     
     // Utility functions
@@ -2443,5 +2447,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substring(2);
+    }
+
+    // Debounce utility
+    function debounce(fn, wait) {
+        let t;
+        return function(...args) {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, args), wait);
+        };
     }
 });
