@@ -4,12 +4,13 @@ const path = require('path');
 
 let kv = null;
 try {
-    kv = require('@vercel/kv');
+    // Proper CommonJS usage per latest @vercel/kv docs
+    ({ kv } = require('@vercel/kv'));
 } catch (_) {
     // @vercel/kv not installed or not available in local context
 }
 
-const hasKV = !!(kv && (process.env.KV_REST_API_URL || process.env.KV_URL));
+const hasKV = !!kv;
 
 const PATTERNS_FILE = process.env.PATTERNS_DATA_FILE
   ? path.resolve(__dirname, process.env.PATTERNS_DATA_FILE)
