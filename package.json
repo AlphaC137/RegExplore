@@ -1,0 +1,23 @@
+{
+  "name": "regexplore",
+  "version": "2.0.0",
+  "description": "Interactive regular expression playground and visualizer",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve",
+    "test": "echo \"No tests configured\""
+  },
+  "keywords": [
+    "regex",
+    "regular expressions",
+    "visualizer",
+    "pattern testing",
+    "developer tool"
+  ],
+  "author": "AlphaC137",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlphaC137/RegExplore.git"
+  }
+}
