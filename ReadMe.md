@@ -66,30 +66,6 @@ Works in all modern browsers:
 
 No build tools or dependencies required for basic usage.
 
-## Deployment
-
-### Local Development
-Simply serve the files using a static web server:
-
-```bash
-# Using Python
-python -m http.server 8080
-
-# Using Node.js
-npx serve
-```
-
-### Deploy on Vercel
-This project is optimized for deployment on Vercel:
-
-1. Fork or push this repository to your GitHub account
-2. Sign up/in on [Vercel](https://vercel.com)
-3. Click "New Project" and import your repository
-4. Leave all settings at their defaults (automatically detects static site)
-5. Click "Deploy"
-
-The site will be deployed to a URL like `https://regexplore.vercel.app` (depending on your project name).
-
 ## Community Patterns
 
 The Community Patterns feature allows users to share and discover regex patterns created by other developers:
